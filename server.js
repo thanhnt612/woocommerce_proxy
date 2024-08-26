@@ -94,7 +94,13 @@ app.use("/api/*", async (req, res) => {
     res.status(status).json({ success: false, data: data, totalPages: 0 });
   }
 });
+app.get("/", (req, res) => {
 
+  res.status(200).json({
+    success: true,
+    message: "HELLO",
+  });
+});
 // Endpoint để nhận webhook từ WooCommerce và gửi email
 app.post("/webhook-endpoint", (req, res) => {
   const { order_id, billing_email, items, order_total, billing_info } =
