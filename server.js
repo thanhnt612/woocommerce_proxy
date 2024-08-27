@@ -217,3 +217,4 @@ server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   logger.info(`Server đang chạy trên cổng ${PORT}`);
 });
+module.exports = app;
