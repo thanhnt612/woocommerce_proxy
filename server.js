@@ -31,26 +31,28 @@ io.on("connection", (socket) => {
 });
 
 // Tạo logger với Winston
-const logger = winston.createLogger({
-  level: "info",
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.File({ filename: "error.log", level: "error" }),
-    new winston.transports.File({ filename: "combined.log" }),
-  ],
-});
+// const logger = winston.createLogger({
+//   level: "info",
+//   format: winston.format.combine(
+//     winston.format.timestamp(),
+//     winston.format.json()
+//   ),
+//   transports: [
+//     new winston.transports.File({ filename: "error.log", level: "error" }),
+//     new winston.transports.File({ filename: "combined.log" }),
+//   ],
+// });
 
 // Tạo write stream (in append mode) cho request log
-const accessLogStream = fs.createWriteStream(
-  path.join(__dirname, "request.log"),
-  { flags: "a" }
-);
+// const accessLogStream = fs.createWriteStream(
+//   path.join(__dirname, "request.log"),
+//   { flags: "a" }
+// );
 
 // Sử dụng morgan để ghi log tất cả request vào file 'request.log'
-app.use(morgan("combined", { stream: accessLogStream }));
+app.use(morgan("combined"
+  // , { stream: accessLogStream }
+));
 
 // Middleware để xử lý CORS
 app.use(cors());
@@ -102,10 +104,10 @@ app.post("/webhook-endpoint", (req, res) => {
   const { order_id, billing_email, items, order_total, billing_info } =
     req.body;
 
-  logger.info(`Received order: ${JSON.stringify(req.body)}`);
+  // logger.info(`Received order: ${JSON.stringify(req.body)}`);
 
   if (!billing_email) {
-    logger.error("Email người nhận không được xác định.");
+    // logger.error("Email người nhận không được xác định.");
     return res.status(400).send("Email người nhận không được xác định.");
   }
 
@@ -181,10 +183,10 @@ app.post("/webhook-endpoint", (req, res) => {
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      logger.error(`Không thể gửi email: ${error.message}`);
+      // logger.error(`Không thể gửi email: ${error.message}`);
       return res.status(500).send("Không thể gửi email");
     }
-    logger.info(`Email sent: ${info.response}`);
+    // logger.info(`Email sent: ${info.response}`);
     res.status(200).send("Email đã được gửi");
   });
 });
@@ -194,7 +196,7 @@ app.post("/woocommerce_new_order", (req, res) => {
   const { order_id, billing_email, items, order_total, billing_info } =
     req.body;
 
-  logger.info(`Received new order: ${JSON.stringify(req.body)}`);
+  // logger.info(`Received new order: ${JSON.stringify(req.body)}`);
 
   // Gửi dữ liệu đơn hàng tới tất cả các client kết nối qua Socket.io
   io.emit("new_order", {
@@ -215,6 +217,6 @@ app.post("/woocommerce_new_order", (req, res) => {
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  logger.info(`Server đang chạy trên cổng ${PORT}`);
+  // logger.info(`Server đang chạy trên cổng ${PORT}`);
 });
 module.exports = app;
