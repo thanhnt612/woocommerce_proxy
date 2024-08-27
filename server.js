@@ -29,7 +29,11 @@ io.on("connection", (socket) => {
     console.log("Client disconnected");
   });
 });
-
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'public')));
 // Tạo logger với Winston
 // const logger = winston.createLogger({
 //   level: "info",
@@ -96,9 +100,13 @@ app.use("/api/*", async (req, res) => {
     res.status(status).json({ success: false, data: data, totalPages: 0 });
   }
 });
-app.get("/", (req,res) => {
-  res.json({message:"Welcome to Muha Server"})
-})
+// app.get("/", (req,res) => {
+//   res.json({message:"Welcome to Muha Server"})
+// })
+app.get("/", (req, res) => {
+  const currentYear = new Date().getFullYear();
+  res.render("index", { title: "Muha Server", year: currentYear });
+});
 // Endpoint để nhận webhook từ WooCommerce và gửi email
 app.post("/webhook-endpoint", (req, res) => {
   const { order_id, billing_email, items, order_total, billing_info } =
