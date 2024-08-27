@@ -4,7 +4,7 @@
 
 ## Hình ảnh minh họa
 
-![Muha Server Screenshot](public/img/app.png)
+![Muha Server Screenshot](public/img/screen.png)
 
 ## Cài đặt và chạy
 
