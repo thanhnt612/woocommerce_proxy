@@ -95,7 +95,7 @@ app.use("/api/*", async (req, res) => {
   }
 });
 app.get("/", (req,res) => {
-  res.json({message:"Welcome to Web Server Muha"})
+  res.json({message:"Welcome to Muha Server"})
 })
 // Endpoint để nhận webhook từ WooCommerce và gửi email
 app.post("/webhook-endpoint", (req, res) => {
