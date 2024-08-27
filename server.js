@@ -44,13 +44,9 @@ io.on("connection", (socket) => {
 // });
 
 // Tạo write stream (in append mode) cho request log
-const accessLogStream = fs.createWriteStream(
-  path.join(__dirname, "request.log"),
-  { flags: "a" }
-);
 
 // Sử dụng morgan để ghi log tất cả request vào file 'request.log'
-app.use(morgan("combined", { stream: accessLogStream }));
+app.use(morgan("combined"));
 
 // Middleware để xử lý CORS
 app.use(cors());
@@ -195,8 +191,6 @@ app.post("/webhook-endpoint", (req, res) => {
 app.post("/woocommerce_new_order", (req, res) => {
   const { order_id, billing_email, items, order_total, billing_info } =
     req.body;
-console.log(req.body);
-
   // logger.info(`Received new order: ${JSON.stringify(req.body)}`);
 
   // Gửi dữ liệu đơn hàng tới tất cả các client kết nối qua Socket.io
