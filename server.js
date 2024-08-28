@@ -7,14 +7,14 @@ const winston = require("winston");
 const morgan = require("morgan");
 const fs = require("fs");
 const path = require("path");
-// const http = require("http");
-// const socketIo = require("socket.io");
+const http = require("http");
+const socketIo = require("socket.io");
 
 dotenv.config();
 
 const app = express();
-const httpServer = require('http').createServer(app);
-const io = require('socket.io')(httpServer, {
+const server = http.createServer(app);
+const io = socketIo(server, {
   cors: {
     origin: "*", // Thay thế * bằng domain của bạn để bảo mật hơn
     methods: ["GET", "POST"],
@@ -29,21 +29,11 @@ io.on("connection", (socket) => {
     console.log("Client disconnected");
   });
 });
-
-// Tạo logger với Winston
-// const logger = winston.createLogger({
-//   level: "info",
-//   format: winston.format.combine(
-//     winston.format.timestamp(),
-//     winston.format.json()
-//   ),
-//   transports: [
-//     new winston.transports.File({ filename: "error.log", level: "error" }),
-//     new winston.transports.File({ filename: "combined.log" }),
-//   ],
-// });
-
-// Tạo write stream (in append mode) cho request log
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Sử dụng morgan để ghi log tất cả request vào file 'request.log'
 app.use(morgan("combined"));
@@ -53,15 +43,7 @@ app.use(cors());
 
 // Middleware để parse JSON body
 app.use(express.json());
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
 
-app.get("/", (req, res) => {
-  const currentYear = new Date().getFullYear();
-  res.render("index", { title: "Muha Server", year: currentYear });
-});
 // Proxy các yêu cầu tới WooCommerce API
 app.use("/api/*", async (req, res) => {
   try {
@@ -98,16 +80,16 @@ app.use("/api/*", async (req, res) => {
     res.status(status).json({ success: false, data: data, totalPages: 0 });
   }
 });
-
+app.get("/", (req, res) => {
+  const currentYear = new Date().getFullYear();
+  res.render("index", { title: "Muha Server", year: currentYear });
+});
 // Endpoint để nhận webhook từ WooCommerce và gửi email
 app.post("/webhook-endpoint", (req, res) => {
   const { order_id, billing_email, items, order_total, billing_info } =
     req.body;
 
-  // logger.info(`Received order: ${JSON.stringify(req.body)}`);
-
   if (!billing_email) {
-    // logger.error("Email người nhận không được xác định.");
     return res.status(400).send("Email người nhận không được xác định.");
   }
 
@@ -131,7 +113,9 @@ app.post("/webhook-endpoint", (req, res) => {
                Đơn hàng mới: #${order_id}
             </div>
             <div style="padding: 20px;">
-                <p>Bạn đã nhận được đơn hàng từ ${billing_info.first_name} ${billing_info.last_name}.</p>
+                <p>Bạn đã nhận được đơn hàng từ ${billing_info.first_name} ${
+      billing_info.last_name
+    }.</p>
                 <p>Thứ tự như sau:</p>
                 <h2 style="color: #800080;">Đơn hàng #${order_id} (${new Date().toLocaleDateString()})</h2>
                 <table width="100%" cellpadding="10" cellspacing="0" border="1" style="border-collapse: collapse; border: 1px solid #ccc;">
@@ -169,7 +153,9 @@ app.post("/webhook-endpoint", (req, res) => {
                     ${billing_info.city}, ${billing_info.postcode}<br>
                     ${billing_info.country}<br>
                     ${billing_info.phone}<br>
-                    <a href="mailto:${billing_info.email}">${billing_info.email}</a>
+                    <a href="mailto:${billing_info.email}">${
+      billing_info.email
+    }</a>
                 </p>
                 <p style="margin-top: 20px;">Xin chúc mừng vì đã bán được hàng 🎉</p>
             </div>
@@ -179,10 +165,8 @@ app.post("/webhook-endpoint", (req, res) => {
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      // logger.error(`Không thể gửi email: ${error.message}`);
       return res.status(500).send("Không thể gửi email");
     }
-    // logger.info(`Email sent: ${info.response}`);
     res.status(200).send("Email đã được gửi");
   });
 });
@@ -191,7 +175,6 @@ app.post("/webhook-endpoint", (req, res) => {
 app.post("/woocommerce_new_order", (req, res) => {
   const { order_id, billing_email, items, order_total, billing_info } =
     req.body;
-  // logger.info(`Received new order: ${JSON.stringify(req.body)}`);
 
   // Gửi dữ liệu đơn hàng tới tất cả các client kết nối qua Socket.io
   io.emit("new_order", {
@@ -210,7 +193,7 @@ app.post("/woocommerce_new_order", (req, res) => {
 
 // Khởi chạy server
 const PORT = process.env.PORT || 5000;
-httpServer.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  // logger.info(`Server đang chạy trên cổng ${PORT}`);
 });
+module.exports = app;
