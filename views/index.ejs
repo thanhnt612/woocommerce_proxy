@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel="icon" href="/img/app.png" type="image/png">
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOMFBDdL7/PYcdYwsmRI1qI8SXU1BMt2kdu9foz" crossorigin="anonymous">
+</head>
+  <body>
+    <div class="container">
+      <h1><%= title %></h1>
+      <p>
+        Chào mừng đến với <%= title %>. <br/>
+        Khám phá trang web của chúng tôi để tìm hiểu thêm về những gì chúng tôi
+        cung cấp.
+      </p>
+      <a href="https://muha.vn" target="_blank">Tìm hiểu thêm</a>
+      <br />
+      <button onclick="window.open('https://muha.vn', '_blank')">
+        Bắt đầu ngay
+      </button>
+    </div>
+    <footer>
+      <p>
+        &copy;  <%= year %> Muha Server. <br/>
+        <a href="https://muha.vn" target="_blank">Tất cả các quyền được bảo lưu</a> |
+        <a href="https://muha.vn" target="_blank">Chính sách bảo mật</a> |
+        <a href="https://muha.vn" target="_blank">Điều khoản dịch vụ</a>
+      </p>
+    </footer>
+  </body>
+</html>
